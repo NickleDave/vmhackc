@@ -43,12 +43,17 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
    }
 
-   char **vm_paths;
-   int num_vm_paths;
    char* in_path = argv[1];
-    if (isdir(in_path)) {
+   int in_path_len = strlen(in_path);
+   char* in_path_copy = strdup(in_path);
+   char** vm_paths;
+   int num_vm_paths;
+   char* out_path;
+
+   // ---- if `in_path` is a directory ---------------------------------------------------------------
+   if (isdir(in_path)) {
+        // ---- glob for .vm files ----------------------------------------------------------------------
         // add "/" to end of `in_path` if it's not there already
-        int in_path_len = strlen(in_path);
         if (in_path[in_path_len - 1] != '/') {
             char* in_path_tmp = malloc(in_path_len + 1);
             if (in_path_tmp == NULL)  {
@@ -62,13 +67,11 @@ int main(int argc, char* argv[]) {
         }
 
         glob_t glob_struct;
-        
         char* glob_pattern = malloc(in_path_len + strlen(VM_EXT) + 1);
         if (glob_pattern == NULL) {
             fprintf(stderr, "malloc allocation failure");
             exit(EXIT_FAILURE);
         }
-
         strcpy(glob_pattern, in_path);
         strcat(glob_pattern, VM_EXT);
         int ret = glob(glob_pattern, 0, NULL, &glob_struct);
@@ -81,7 +84,16 @@ int main(int argc, char* argv[]) {
         }
         vm_paths = glob_struct.gl_pathv;
         num_vm_paths = glob_struct.gl_pathc;
-    } else {
+
+        // ---- construct `out_path` --------------------------------------------------------------------
+        // as: in_path / in_path_basename + ".vm": e.g., `./tests/data/Fib/" -> "./tests/data/Fib/Fib.vm"
+        char* in_path_basename = basename(in_path_copy);
+        int basename_len = strlen(in_path_basename);
+        out_path = malloc(in_path_len + basename_len + strlen(VM_EXT));
+        strcpy(out_path, in_path);
+        strcat(out_path, in_path_basename);
+        strcat(out_path, VM_EXT);
+    } else {  // ---- if `in_path` is not a dir, but a file ---------------------------------------------
         if (! is_regular_file(in_path)) {
             fprintf(stderr, "Path not found or is not a regular file: %s\n", in_path);
             exit(EXIT_FAILURE);
@@ -93,11 +105,19 @@ int main(int argc, char* argv[]) {
         vm_paths = malloc(1 * sizeof(char *));
         vm_paths[0] = in_path;
         num_vm_paths = 1;
+
+        // ---- construct `out_path` --------------------------------------------------------------------
+        out_path = malloc(in_path_len + strlen(VM_EXT));
+        strcpy(out_path, basename(in_path_copy));
+        strcat(out_path, VM_EXT);
     }
 
     for (int vm_path_num = 0; vm_path_num < num_vm_paths; vm_path_num++) {
         fprintf(stdout, ".vm path %d: %s\n", vm_path_num, vm_paths[vm_path_num]);
     }
 
+    // free all the things
+    free(in_path_copy);
     free(vm_paths);
+    
 }
