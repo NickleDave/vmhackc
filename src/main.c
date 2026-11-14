@@ -34,7 +34,7 @@ int has_vm_extension(const char *path) {
 }
 
 
-char* VM_EXT = ".vm";
+char* VM_EXT = "*.vm";
 
 
 int main(int argc, char* argv[]) {
@@ -47,9 +47,23 @@ int main(int argc, char* argv[]) {
    int num_vm_paths;
    char* in_path = argv[1];
     if (isdir(in_path)) {
+        // add "/" to end of `in_path` if it's not there already
+        int in_path_len = strlen(in_path);
+        if (in_path[in_path_len - 1] != '/') {
+            char* in_path_tmp = malloc(in_path_len + 1);
+            if (in_path_tmp == NULL)  {
+                fprintf(stderr, "malloc allocation failure");
+                exit(EXIT_FAILURE);
+            }
+            strcpy(in_path_tmp, in_path);
+            strcat(in_path_tmp, '/');
+            in_path = in_path_tmp;
+            in_path_len += 1;
+        }
+
         glob_t glob_struct;
         
-        char *glob_pattern = malloc(strlen(in_path) + strlen(VM_EXT) + 1);
+        char* glob_pattern = malloc(in_path_len + strlen(VM_EXT) + 1);
         if (glob_pattern == NULL) {
             fprintf(stderr, "malloc allocation failure");
             exit(EXIT_FAILURE);
