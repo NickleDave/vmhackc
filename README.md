@@ -1,6 +1,6 @@
 # `vmhackc`
 
-The VMTranslator from Elements of Computing System, implemented in C.
+The VMTranslator from Elements of Computing Systems, implemented in C.
 
 A mostly literal translation from my implementation in Python:  
 https://github.com/NickleDave/vmhackpy
@@ -12,13 +12,15 @@ To "translate" Hack VM programs to assembly, run:
 VMTranslator Add.vm
 ```
 
-By default, this will create a file with the same base name and the `.asm` extension.
+By default, this will create a file with the same stem and the `.asm` extension, .e.g, `Add.vm`.
+
+The argument `<PATH>` can either be a `.vm` file or a directory containing multiple `.vm` files, that will all be compiled into a single `.asm` file.
 
 ## Set-up
 
 The build is done with CMake.
 
-For the initial configc, run the folluration, run the following in the project root:
+For the initial configuration, run the following, run the following in the project root:
 
 ```
 cmake -B build
