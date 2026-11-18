@@ -1,4 +1,6 @@
 #include <glob.h>
+#include <libgen.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,12 +40,20 @@ char* VM_EXT = "*.vm";
 
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        fprintf(stderr, "Expected usage: VMTranslator <PATH to .vm file or directory of .vm files>\n");
+    if (argc > 3) {
+        fprintf(stderr, "Expected usage: VMTranslator --verbose <PATH to .vm file or directory of .vm files>\n");
         exit(EXIT_FAILURE);
+    }
+
+    bool verbose = false;
+    // we can make this simpler if we only check when argc == 3
+    for (int i = 1; i < argc - 1; i++) {
+        if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--verbose") == 0) {
+            verbose = true;
+        }
    }
 
-   char* in_path = argv[1];
+   char* in_path = argv[argc - 1];
    int in_path_len = strlen(in_path);
    char* in_path_copy = strdup(in_path);
    char** vm_paths;
@@ -61,7 +71,7 @@ int main(int argc, char* argv[]) {
                 exit(EXIT_FAILURE);
             }
             strcpy(in_path_tmp, in_path);
-            strcat(in_path_tmp, '/');
+            strcat(in_path_tmp, "/");
             in_path = in_path_tmp;
             in_path_len += 1;
         }
@@ -112,9 +122,14 @@ int main(int argc, char* argv[]) {
         strcat(out_path, VM_EXT);
     }
 
-    for (int vm_path_num = 0; vm_path_num < num_vm_paths; vm_path_num++) {
-        fprintf(stdout, ".vm path %d: %s\n", vm_path_num, vm_paths[vm_path_num]);
+    if (verbose) {
+        puts("Found the following files:");
+        for (int vm_path_num = 0; vm_path_num < num_vm_paths; vm_path_num++) {
+            fprintf(stdout, ".vm path %d: %s\n", vm_path_num, vm_paths[vm_path_num]);
+        }
     }
+
+    printf("Translating %d .vm files\n", num_vm_paths);
 
     // free all the things
     free(in_path_copy);
