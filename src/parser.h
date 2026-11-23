@@ -30,4 +30,9 @@ typedef struct {
 } Parser;
 
 
+Parser* new_parser(const char* vm_file_path);
+void free_parser(Parser* parser_ptr);
+bool parser_has_more_commands(Parser* parser_ptr);
+ParsedLine parser_advance(Parser* parser_ptr);
+
 #endif
