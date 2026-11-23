@@ -1,10 +1,14 @@
 #include <errno.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "parser.h"
 
 
+/**
+ * @brief: make a new Parser instance
+ */
 Parser* new_parser(const char* vm_file_path) {
     Parser* parser_ptr = NULL;
     parser_ptr = (Parser*) malloc(sizeof(Parser));
@@ -39,6 +43,9 @@ Parser* new_parser(const char* vm_file_path) {
 }
 
 
+/**
+ * @brief: free a Parser instance
+ */
 void free_parser(Parser* parser_ptr) {
     free(parser_ptr->vm_file_path);
     free(parser_ptr->file_pointer);
@@ -46,6 +53,26 @@ void free_parser(Parser* parser_ptr) {
 }
 
 
-ParsedLine advance(char* line) {
-    
+/**
+ * @brief: returns true if Parser has more commands (lines)
+ */
+bool parser_has_more_commands(Parser* parser_ptr) {
+    (feof(parser_ptr->file_pointer) == 0) ? true : false;
+}
+
+
+/**
+ * @brief: advances Parser by one line
+ * @param: parser_ptr
+ * @return: ParsedLine with CommandType, arg1, and arg2
+ */
+ParsedLine parser_advance(Parser* parser_ptr) {
+    char* line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    read = getline(&line, &len, parser_ptr->file_pointer);
+    if (read == -1) {
+        fprintf(stderr, "parser_advance: -1 from getline");
+        exit(EXIT_FAILURE);
+    }
 }
